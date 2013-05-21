@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Control.Proxy.Vector ( toVectorD
                             , runToVectorD
                             ) where
