@@ -42,9 +42,9 @@ toVectorD () = runIdentityP go where
         go
 
 runToVectorD
-    :: (PrimMonad m, MVU.Unbox a)
-    => StateT (ToVectorState (MVU.MVector (PrimState m)) a) m r
-    -> m (VU.Vector a)
+    :: (PrimMonad m, MVU.Unbox e)
+    => StateP (ToVectorState (MVU.MVector (PrimState m)) e) m r
+    -> m (VU.Vector e)
 runToVectorD x = do
     v      <- MVU.new 10
     (_, s) <- flip runStateT (ToVecS v 0) x
