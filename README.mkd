@@ -1,0 +1,3 @@
+# pipes-vector
+
+`pipes-vector` allows one to stream values from a `Proxy` into a growing `vector`.
