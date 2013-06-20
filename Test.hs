@@ -1,6 +1,7 @@
-import Control.Proxy       
-import Control.Proxy.Vector
+import Pipes
+import qualified Pipes.Prelude as PP
+import Pipes.Vector
 
 main = do
-    a <- runProxy $ runToVectorK $ fromListS [1..5::Int] >-> toVectorD
+    a <- runEffect $ runToVectorP $ (PP.fromList [1..5::Int] >-> toVector) ()
     print a
