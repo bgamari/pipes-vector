@@ -28,6 +28,7 @@ data ToVectorState v m e = ToVecS { result :: V.Mutable v (PrimState m) e
                                   , idx :: Int
                                   }
 
+maxChunkSize :: Int
 maxChunkSize = 8*1024*1024
 
 -- | Consume items from a Pipe and place them into a vector
