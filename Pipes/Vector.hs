@@ -35,18 +35,18 @@ maxChunkSize = 8*1024*1024
 -- For efficient filling, the vector is grown geometrically up to a
 -- maximum chunk size.
 toVector
-     :: (PrimMonad m, Functor m, M.MVector (V.Mutable v) e)
+     :: (PrimMonad m, M.MVector (V.Mutable v) e)
      => Consumer e (S.StateT (ToVectorState v m e) m) r
 toVector = forever $ do
       length <- M.length . result <$> lift get
-      pos <- idx <$> lift get
+      pos <- idx `liftM` lift get
       lift $ when (pos >= length) $ do
-          v <- result <$> get
+          v <- result `liftM` get
           v' <- lift $ M.unsafeGrow v (min length maxChunkSize)
           modify $ \(ToVecS r i) -> ToVecS v' i
       r <- await
       lift $ do
-          v <- result <$> get
+          v <- result `liftM` get
           lift $ M.unsafeWrite v pos r
           modify $ \(ToVecS r i) -> ToVecS r (pos+1)
 
