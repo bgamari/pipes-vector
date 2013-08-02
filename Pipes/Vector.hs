@@ -14,8 +14,8 @@ import qualified Data.Vector.Generic.Mutable as M
 import qualified Data.Vector.Unboxed as VU
 
 data ToVectorState v m e = ToVecS { result :: v (PrimState m) e
-                                   , idx :: Int
-                                   }
+                                  , idx :: Int
+                                  }
 
 maxChunkSize = 8*1024*1024
 
