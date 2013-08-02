@@ -29,7 +29,7 @@ toVector () = forever $ do
           v <- result <$> get
           v' <- lift $ M.unsafeGrow v (min length maxChunkSize)
           modify $ \(ToVecS r i) -> ToVecS v' i
-      r <- request ()
+      r <- await
       lift $ do
           v <- result <$> get
           lift $ M.unsafeWrite v pos r
