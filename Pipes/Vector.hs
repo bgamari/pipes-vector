@@ -31,6 +31,9 @@ data ToVectorState v m e = ToVecS { result :: V.Mutable v (PrimState m) e
 maxChunkSize = 8*1024*1024
 
 -- | Consume items from a Pipe and place them into a vector
+--
+-- For efficient filling, the vector is grown geometrically up to a
+-- maximum chunk size.
 toVector
      :: (PrimMonad m, Functor m, M.MVector (V.Mutable v) e)
      => Consumer e (S.StateT (ToVectorState v m e) m) r
