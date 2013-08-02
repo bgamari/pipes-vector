@@ -1,6 +1,19 @@
 {-# LANGUAGE RankNTypes #-}              
 
-module Pipes.Vector ( toVector, runToVectorP ) where
+{-| Pipes for interfacing with "Data.Vector".
+
+    Note that this only provides functionality for building @Vectors@
+    from Pipes; as @Vectors@ are @Foldable@ the inverse can be
+    accomplished with "Pipes.each".
+-}
+
+module Pipes.Vector (
+    -- * Usage
+    -- $usage
+    -- * Building Vectors from Pipes
+    toVector,
+    runToVectorP
+    ) where
                 
 import Control.Applicative
 import Control.Monad
@@ -19,10 +32,11 @@ data ToVectorState v m e = ToVecS { result :: v (PrimState m) e
 
 maxChunkSize = 8*1024*1024
 
+-- | Consume items from a Pipe and place them into a vector
 toVector
      :: (PrimMonad m, Functor m, M.MVector v e)
-     => () -> Consumer e (S.StateT (ToVectorState v m e) m) r
-toVector () = forever $ do
+     => Consumer e (S.StateT (ToVectorState v m e) m) r
+toVector = forever $ do
       length <- M.length . result <$> lift get
       pos <- idx <$> lift get
       lift $ when (pos >= length) $ do
@@ -35,6 +49,7 @@ toVector () = forever $ do
           lift $ M.unsafeWrite v pos r
           modify $ \(ToVecS r i) -> ToVecS r (pos+1)
 
+-- | Extract and freeze the constructed vector
 runToVectorP
      :: (PrimMonad m, MVU.Unbox e)
      => Proxy a' a b' b (StateT (ToVectorState VU.MVector m e) m) r
@@ -44,3 +59,10 @@ runToVectorP x = do
      s <- execStateP (ToVecS v 0) x
      frozen <- lift $ V.freeze (result s)
      return $ VU.take (idx s) frozen
+
+{- $usage
+
+   >>> run $ runToVectorP $ each [1..5::Int] >-> toVector
+   fromList [1,2,3,4,5]
+
+-}
