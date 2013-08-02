@@ -1,4 +1,4 @@
-{-# LANGUAGE RankNTypes #-}              
+{-# LANGUAGE RankNTypes, FlexibleContexts #-}
 
 {-| Pipes for interfacing with "Data.Vector".
 
@@ -21,12 +21,10 @@ import Control.Monad.Trans.State.Strict as S
 import Control.Monad.Primitive
 import Pipes
 import Pipes.Lift
-import qualified Data.Vector.Unboxed.Mutable as MVU
 import qualified Data.Vector.Generic as V
 import qualified Data.Vector.Generic.Mutable as M
-import qualified Data.Vector.Unboxed as VU
 
-data ToVectorState v m e = ToVecS { result :: v (PrimState m) e
+data ToVectorState v m e = ToVecS { result :: V.Mutable v (PrimState m) e
                                   , idx :: Int
                                   }
 
@@ -34,7 +32,7 @@ maxChunkSize = 8*1024*1024
 
 -- | Consume items from a Pipe and place them into a vector
 toVector
-     :: (PrimMonad m, Functor m, M.MVector v e)
+     :: (PrimMonad m, Functor m, M.MVector (V.Mutable v) e)
      => Consumer e (S.StateT (ToVectorState v m e) m) r
 toVector = forever $ do
       length <- M.length . result <$> lift get
@@ -51,14 +49,14 @@ toVector = forever $ do
 
 -- | Extract and freeze the constructed vector
 runToVectorP
-     :: (PrimMonad m, MVU.Unbox e)
-     => Proxy a' a b' b (StateT (ToVectorState VU.MVector m e) m) r
-     -> Proxy a' a b' b m (VU.Vector e)
+     :: (PrimMonad m, V.Vector v e)
+     => Proxy a' a b' b (StateT (ToVectorState v m e) m) r
+     -> Proxy a' a b' b m (v e)
 runToVectorP x = do
-     v <- lift $ MVU.new 10
+     v <- lift $ M.new 10
      s <- execStateP (ToVecS v 0) x
      frozen <- lift $ V.freeze (result s)
-     return $ VU.take (idx s) frozen
+     return $ V.take (idx s) frozen
 
 {- $usage
 
