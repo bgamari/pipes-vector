@@ -13,6 +13,7 @@ module Pipes.Vector (
     -- * Building Vectors from Pipes
     toVector,
     runToVectorP,
+    runToVector,
     ToVector
     ) where
                 
@@ -65,6 +66,14 @@ runToVectorP x = do
      v <- lift $ M.new 10
      s <- execStateP (ToVecS v 0) (hoist unTV x)
      frozen <- lift $ V.freeze (result s)
+     return $ V.take (idx s) frozen
+
+runToVector :: (PrimMonad m, V.Vector v e)
+            => ToVector v e m r -> m (v e)
+runToVector (TV a) = do
+     v <- M.new 10
+     s <- execStateT a (ToVecS v 0)
+     frozen <- V.freeze (result s)
      return $ V.take (idx s) frozen
 
 {- $usage
