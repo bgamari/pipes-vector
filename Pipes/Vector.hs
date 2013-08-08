@@ -1,4 +1,4 @@
-{-# LANGUAGE RankNTypes, FlexibleContexts #-}
+{-# LANGUAGE RankNTypes, FlexibleContexts, GeneralizedNewtypeDeriving #-}
 
 {-| Pipes for interfacing with "Data.Vector".
 
@@ -12,7 +12,8 @@ module Pipes.Vector (
     -- $usage
     -- * Building Vectors from Pipes
     toVector,
-    runToVectorP
+    runToVectorP,
+    ToVector
     ) where
                 
 import Control.Applicative
@@ -20,6 +21,7 @@ import Control.Monad
 import Control.Monad.Trans.State.Strict as S
 import Control.Monad.Primitive
 import Pipes
+import Pipes.Internal (unsafeHoist)
 import Pipes.Lift
 import qualified Data.Vector.Generic as V
 import qualified Data.Vector.Generic.Mutable as M
@@ -27,6 +29,9 @@ import qualified Data.Vector.Generic.Mutable as M
 data ToVectorState v m e = ToVecS { result :: V.Mutable v (PrimState m) e
                                   , idx :: Int
                                   }
+
+newtype ToVector v e m r = TV {unTV :: S.StateT (ToVectorState v m e) m r}
+                         deriving (Functor, Applicative, Monad)
 
 maxChunkSize :: Int
 maxChunkSize = 8*1024*1024
@@ -37,16 +42,16 @@ maxChunkSize = 8*1024*1024
 -- maximum chunk size.
 toVector
      :: (PrimMonad m, M.MVector (V.Mutable v) e)
-     => Consumer e (S.StateT (ToVectorState v m e) m) r
+     => Consumer e (ToVector v e m) r
 toVector = forever $ do
-      length <- M.length . result <$> lift get
-      pos <- idx `liftM` lift get
-      lift $ when (pos >= length) $ do
+      length <- M.length . result <$> lift (TV get)
+      pos <- idx `liftM` lift (TV get)
+      lift $ TV $ when (pos >= length) $ do
           v <- result `liftM` get
           v' <- lift $ M.unsafeGrow v (min length maxChunkSize)
           modify $ \(ToVecS r i) -> ToVecS v' i
       r <- await
-      lift $ do
+      lift $ TV $ do
           v <- result `liftM` get
           lift $ M.unsafeWrite v pos r
           modify $ \(ToVecS r i) -> ToVecS r (pos+1)
@@ -54,11 +59,11 @@ toVector = forever $ do
 -- | Extract and freeze the constructed vector
 runToVectorP
      :: (PrimMonad m, V.Vector v e)
-     => Proxy a' a b' b (StateT (ToVectorState v m e) m) r
+     => Proxy a' a b' b (ToVector v e m) r
      -> Proxy a' a b' b m (v e)
 runToVectorP x = do
      v <- lift $ M.new 10
-     s <- execStateP (ToVecS v 0) x
+     s <- execStateP (ToVecS v 0) (hoist unTV x)
      frozen <- lift $ V.freeze (result s)
      return $ V.take (idx s) frozen
 
