@@ -26,11 +26,11 @@ import Pipes.Lift
 import qualified Data.Vector.Generic as V
 import qualified Data.Vector.Generic.Mutable as M
 
-data ToVectorState v m e = ToVecS { result :: V.Mutable v (PrimState m) e
+data ToVectorState v e m = ToVecS { result :: V.Mutable v (PrimState m) e
                                   , idx :: Int
                                   }
 
-newtype ToVector v e m r = TV {unTV :: S.StateT (ToVectorState v m e) m r}
+newtype ToVector v e m r = TV {unTV :: S.StateT (ToVectorState v e m) m r}
                          deriving (Functor, Applicative, Monad)
 
 maxChunkSize :: Int
