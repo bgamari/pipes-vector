@@ -7,7 +7,7 @@ main = do
     a <- run $ runToVectorP $ each [1..5] >-> toVector :: IO (V.Vector Int)
     print a
 
-    -- Pushing elements from a Vector into a Pipe requires only each
-    -- from Pipes
+    -- Pushing elements from a Vector into a Pipe is just a standard
+    -- Pipes for-each loop
     run $ for (each $ V.enumFromTo 1 5) (lift . print)
     
