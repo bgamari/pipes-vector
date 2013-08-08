@@ -16,7 +16,7 @@ module Pipes.Vector (
     runToVector,
     ToVector
     ) where
-                
+
 import Control.Applicative
 import Control.Monad
 import Control.Monad.Trans.State.Strict as S
