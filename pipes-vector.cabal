@@ -1,5 +1,5 @@
 name:                pipes-vector
-version:             0.4.0.0
+version:             0.5.0.0
 synopsis:            Various proxies for streaming data into and out of vectors
 description:         Proxies for streaming data into and out of vectors.        
 license:             BSD3
