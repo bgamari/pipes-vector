@@ -32,7 +32,7 @@ data ToVectorState v e m = ToVecS { result :: V.Mutable v (PrimState m) e
                                   }
 
 newtype ToVector v e m r = TV {unTV :: S.StateT (ToVectorState v e m) m r}
-                         deriving (Functor, Applicative, Monad)
+                         deriving (Functor, Applicative, Monad, MonadIO)
 
 maxChunkSize :: Int
 maxChunkSize = 8*1024*1024
