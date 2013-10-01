@@ -35,7 +35,11 @@ data ToVectorState v e m = ToVecS { result :: V.Mutable v (PrimState (BasePrimMo
 
 newtype ToVector v e m r = TV {unTV :: S.StateT (ToVectorState v e m) m r}
                          deriving (Functor, Applicative, Monad)
-        
+
+instance MonadTrans (ToVector v e) where
+    lift = TV . lift
+
+-- Nasty orphan instances
 instance MonadPrim m => MonadPrim (Proxy a' a b' b m) where
     type BasePrimMonad (Proxy a' a b' b m) = BasePrimMonad m
     liftPrim = lift . liftPrim
