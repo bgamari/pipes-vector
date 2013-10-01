@@ -1,4 +1,4 @@
-{-# LANGUAGE RankNTypes, FlexibleContexts, GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE RankNTypes, FlexibleContexts, GeneralizedNewtypeDeriving, TypeFamilies #-}
 
 {-| Pipes for interfacing with "Data.Vector".
 
