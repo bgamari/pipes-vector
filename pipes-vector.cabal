@@ -5,7 +5,7 @@ description:         Proxies for streaming data into vectors.
 license:             BSD3
 license-file:        LICENSE
 author:              Ben Gamari
-maintainer:          bgamari.foss@gmail.com
+maintainer:          Ben Gamari <bgamari.foss@gmail.com>
 -- copyright:           
 category:            Control
 build-type:          Simple
