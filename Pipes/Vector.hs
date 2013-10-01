@@ -34,18 +34,15 @@ data ToVectorState v e m = ToVecS { result :: V.Mutable v (PrimState (BasePrimMo
                                   }
 
 newtype ToVector v e m r = TV {unTV :: S.StateT (ToVectorState v e m) m r}
-                         deriving (Functor, Applicative, Monad, MonadIO)
-
-                         
+                         deriving (Functor, Applicative, Monad)
+        
 instance MonadPrim m => MonadPrim (Proxy a' a b' b m) where
-  type BasePrimMonad (Proxy a' a b' b m) = BasePrimMonad m
-  liftPrim = lift . liftPrim
+    type BasePrimMonad (Proxy a' a b' b m) = BasePrimMonad m
+    liftPrim = lift . liftPrim
   
-
 instance MonadPrim m => MonadPrim (ToVector v e m) where
-  type BasePrimMonad (ToVector v e m) = BasePrimMonad m
-  liftPrim = TV . liftPrim
-  
+    type BasePrimMonad (ToVector v e m) = BasePrimMonad m
+    liftPrim = TV . liftPrim
                          
 maxChunkSize :: Int
 maxChunkSize = 8*1024*1024
