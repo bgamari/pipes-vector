@@ -97,5 +97,6 @@ runToVector (TV a) = do
 
 -}
 
-fromProducer :: (V.Vector v e, MonadPrim m) => Producer' e (ToVector v e m) r -> m (v e)
+fromProducer :: (V.Vector v e, MonadPrim m) => Producer e (ToVector v e m) r -> m (v e)
 fromProducer p = runEffect $ runToVectorP (p >-> toVector)
+
