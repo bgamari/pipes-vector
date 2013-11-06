@@ -34,7 +34,7 @@ data ToVectorState v e m = ToVecS { result :: V.Mutable v (PrimState (BasePrimMo
                                   }
 
 newtype ToVector v e m r = TV {unTV :: S.StateT (ToVectorState v e m) m r}
-                         deriving (Functor, Applicative, Monad)
+                         deriving (Functor, Applicative, Monad, MonadIO)
 
 instance MonadTrans (ToVector v e) where
     lift = TV . lift
