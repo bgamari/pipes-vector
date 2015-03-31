@@ -6,7 +6,7 @@ license:             BSD3
 license-file:        LICENSE
 author:              Ben Gamari
 maintainer:          Ben Gamari <bgamari.foss@gmail.com>
--- copyright:           
+copyright:           (c) 2015 Ben Gamari
 category:            Control
 build-type:          Simple
 cabal-version:       >=1.10
