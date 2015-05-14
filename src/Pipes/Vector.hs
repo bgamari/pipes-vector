@@ -68,15 +68,15 @@ toVector
      :: (PrimMonad m, M.MVector (V.Mutable v) e)
      => Consumer e (ToVector v e m) r
 toVector = forever $ do
-      length <- M.length . result <$> lift (TV get)
-      pos <- idx <$> lift (TV get)
+      length <- (M.length . result) `liftM` lift (TV get)
+      pos <- idx `liftM` lift (TV get)
       lift $ TV $ when (pos >= length) $ do
-          v <- result <$> get
+          v <- result `liftM` get
           v' <- M.unsafeGrow v (min length maxChunkSize)
           modify $ \(ToVecS r i) -> ToVecS v' i
       r <- await
       lift $ TV $ do
-          v <- result <$> get
+          v <- result `liftM` get
           M.unsafeWrite v pos r
           modify $ \(ToVecS r i) -> ToVecS r (pos+1)
 
