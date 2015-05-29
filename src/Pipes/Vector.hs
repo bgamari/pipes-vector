@@ -66,7 +66,7 @@ maxChunkSize = 8*1024*1024
 -- maximum chunk size.
 toVector
      :: (PrimMonad m, M.MVector (V.Mutable v) e)
-     => Consumer e (ToVector v e m) r
+     => Consumer' e (ToVector v e m) r
 toVector = forever $ do
       length <- (M.length . result) `liftM` lift (TV get)
       pos <- idx `liftM` lift (TV get)
