@@ -79,6 +79,7 @@ toVector = forever $ do
           v <- result `liftM` get
           M.unsafeWrite v pos r
           modify $ \(ToVecS r i) -> ToVecS r (pos+1)
+{-# INLINE toVector #-}
 
 -- | Extract and freeze the constructed vector
 runToVectorP
@@ -90,6 +91,7 @@ runToVectorP x = do
      s <- execStateP (ToVecS v 0) (hoist unTV x)
      frozen <- V.freeze (result s)
      return $ V.take (idx s) frozen
+{-# INLINEABLE runToVectorP #-}
 
 runToVector :: (PrimMonad m, V.Vector v e)
             => ToVector v e m r -> m (v e)
@@ -98,6 +100,7 @@ runToVector (TV a) = do
      s <- execStateT a (ToVecS v 0)
      frozen <- V.freeze (result s)
      return $ V.take (idx s) frozen
+{-# INLINEABLE runToVector #-}
 
 {- $usage
 
@@ -108,4 +111,5 @@ runToVector (TV a) = do
 
 fromProducer :: (V.Vector v e, PrimMonad m) => Producer e (ToVector v e m) r -> m (v e)
 fromProducer p = runEffect $ runToVectorP (p >-> toVector)
+{-# INLINEABLE fromProducer #-}
 
