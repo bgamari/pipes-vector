@@ -29,8 +29,8 @@ import Pipes.Lift
 import qualified Data.Vector.Generic as V
 import qualified Data.Vector.Generic.Mutable as M
 
-data ToVectorState v e m = ToVecS { result :: V.Mutable v (PrimState m) e
-                                  , idx :: Int
+data ToVectorState v e m = ToVecS { result :: !(V.Mutable v (PrimState m) e)
+                                  , idx :: !Int
                                   }
 
 newtype ToVector v e m r = TV {unTV :: S.StateT (ToVectorState v e m) m r}
@@ -52,11 +52,11 @@ instance PrimMonad m => PrimMonad (Proxy a' a b' b m) where
 instance MP.MonadPrim m => MP.MonadPrim (Proxy a' a b' b m) where
     type BasePrimMonad (Proxy a' a b' b m) = MP.BasePrimMonad m
     liftPrim = lift . MP.liftPrim
-  
+
 instance MP.MonadPrim m => MP.MonadPrim (ToVector v e m) where
     type BasePrimMonad (ToVector v e m) = MP.BasePrimMonad m
     liftPrim = TV . MP.liftPrim
-                         
+
 maxChunkSize :: Int
 maxChunkSize = 8*1024*1024
 
