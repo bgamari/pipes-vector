@@ -22,7 +22,6 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Trans.State.Strict as S
 import Control.Monad.Primitive
-import qualified Control.Monad.Primitive.Class as MP
 import Pipes
 import Pipes.Internal (unsafeHoist)
 import Pipes.Lift
@@ -47,15 +46,6 @@ instance PrimMonad m => PrimMonad (ToVector v e m) where
 instance PrimMonad m => PrimMonad (Proxy a' a b' b m) where
     type PrimState (Proxy a' a b' b m) = PrimState m
     primitive = lift .  primitive
-
--- monad-primitive instances (TODO: remove these)
-instance MP.MonadPrim m => MP.MonadPrim (Proxy a' a b' b m) where
-    type BasePrimMonad (Proxy a' a b' b m) = MP.BasePrimMonad m
-    liftPrim = lift . MP.liftPrim
-
-instance MP.MonadPrim m => MP.MonadPrim (ToVector v e m) where
-    type BasePrimMonad (ToVector v e m) = MP.BasePrimMonad m
-    liftPrim = TV . MP.liftPrim
 
 maxChunkSize :: Int
 maxChunkSize = 8*1024*1024
